@@ -1,39 +1,66 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { AppBar, Toolbar, Typography } from "@mui/material";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./styles.css";
-import models from "../../modelData/models";
+import {Link} from 'react-router-dom';
 
 function TopBar() {
   const location = useLocation();
-  const params = useParams();  
+  const [userInfo, setUserInfo] = useState("");
+  const navigate = useNavigate();
 
-  const getContextInfo = () => {
-    const urlParts = location.pathname.split('/');
-    const userId = urlParts[2];
-    if (!userId) return "";
-    
-    const user = models.userModel(userId);
-    if (!user) return "";
-    
-    if (location.pathname.includes("/photos/")) {
-      return `Photos of ${user.first_name} ${user.last_name}`;
-    } else if (location.pathname.includes("/users/")) {
-      return `${user.first_name} ${user.last_name}`;
-    }
-    return "";
+  const handleLogout = () => {
+    fetch('http://localhost:8081/api/user/admin/logout', {
+      method: 'POST',
+      header: {
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({}),
+    })
+    .then(response => {
+      if(response.ok){
+        localStorage.removeItem("userId");
+        localStorage.removeItem("firstName");
+        localStorage.removeItem("lastName");
+        navigate('/');
+      }
+    })
   };
+
+  useEffect( () => {
+    if(localStorage.userId){
+      setUserInfo(`Hi ${localStorage.getItem("firstName")} ${localStorage.getItem("lastName")}`)
+    } else {
+      setUserInfo("Please Login");
+    }
+  }, [location.pathname]);
 
   return (
     <AppBar className="topbar-appBar" position="absolute">
       <Toolbar>
-        <Typography variant="h5" style={{ flexGrow: 1 }}>
-          Nguyễn Xuân Việt
+        <Typography variant="h6" style={{ flexGrow: 1 }}>
+          {userInfo}
         </Typography>
-        <Typography variant="h6">
-          {getContextInfo()}
-          {/*  hàm sẽ được gọi lại mỗi lần re render */}
-        </Typography>
+        {localStorage.userId && (
+          <div style={{display: "flex"}}>
+            <Typography 
+              variant="h6" 
+              onClick={handleLogout}
+              style={{
+                cursor: "pointer",
+                "&:hover": {
+                  textDecoration: "underline"
+                }
+              }}
+            >
+              Log out
+            </Typography>
+            <Typography component={Link} to={'/addPhoto'} style={{margin:10, color: "red"}}>
+              Add Photo
+            </Typography>
+          </div>
+          
+        )}
       </Toolbar>
     </AppBar>
   );

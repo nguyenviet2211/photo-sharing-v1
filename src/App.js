@@ -8,6 +8,11 @@ import TopBar from "./components/TopBar";
 import UserDetail from "./components/UserDetail";
 import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
+import ProtectedRoute from "./components/ProtectedRoute";
+import LoginRegister from './components/LoginRegister';
+import AddPhoto from './components/AddPhoto';
+import Register from './components/Register';
+
 
 const App = (props) => {
   return (
@@ -28,13 +33,30 @@ const App = (props) => {
                 <Routes>
                   <Route
                       path="/users/:userId"
-                      element = {<UserDetail />}
+                      element = {
+                        <ProtectedRoute>
+                          <UserDetail />
+                        </ProtectedRoute>
+                      }
                   />
                   <Route
                       path="/photos/:userId"
-                      element = {<UserPhotos />}
+                      element = {
+                        <ProtectedRoute>
+                          <UserPhotos />
+                        </ProtectedRoute>
+                      }
                   />
-                  <Route path="/users" element={<UserList />} />
+                  <Route path="/addPhoto" element={
+                    <ProtectedRoute>
+                      <AddPhoto/>
+                    </ProtectedRoute>
+                  }></Route>
+
+                  <Route path="/register" element={
+                    <Register/>
+                  }/>
+                  <Route path="*" element={<LoginRegister/>}/>
                 </Routes>
               </Paper>
             </Grid>

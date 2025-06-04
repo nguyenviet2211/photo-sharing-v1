@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect} from "react";
 import {
   Divider,
   List,
@@ -6,25 +6,34 @@ import {
   ListItemText,
   Typography,
 } from "@mui/material";
-import { BrowserRouter as Router, Routes, Route, Link, Outlet }
-from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Outlet, useLocation } from 'react-router-dom';
 import "./styles.css";
-import models from "../../modelData/models";
 
-/**
- * Define UserList, a React component of Project 4.
- */
 function UserList () {
-    const users = models.userListModel();
+    const [users, setUsers] = useState([]);
+    const location = useLocation();
+
+
+    useEffect(() => {
+      const userId = localStorage.getItem("userId");
+      if(userId){
+        fetch(`http://localhost:8081/api/user/list`)
+        .then(response => response.json())
+        .then(data => {
+          setUsers(data);
+        });
+      } else {
+        setUsers([]);
+      }      
+    }, [location.pathname]);
+
+    if(!users.length){
+      return (<div></div>);
+    }
+
     return (
       <div>
-        {/* <Typography variant="body1">
-          This is the user list, which takes up 3/12 of the window. You might
-          choose to use <a href="https://mui.com/components/lists/">Lists</a>{" "}
-          and <a href="https://mui.com/components/dividers/">Dividers</a> to
-          display your users like so:
-        </Typography> */}
-
+        {
         <List component="nav">
           {users.map((item) => (
             <React.Fragment key={item._id}>
@@ -35,10 +44,7 @@ function UserList () {
             </React.Fragment>
           ))}
         </List>
-        
-        {/* <Typography variant="body1">
-          The model comes in from models.userListModel()
-        </Typography> */}
+        } 
       </div>
     );
 }
